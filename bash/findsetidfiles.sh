@@ -22,5 +22,8 @@ echo ""
 
 # for the task, add
 # commands to display a title
+echo "Largest Files"
+echo "============="
 # commands to make a list of the 12 biggest files
+find / -type f -executable -perm -4000 -ls 2>/dev/null| sort -n -r | head -12 |awk '{print $11}'
 # sort/format whatever to display the list properly
