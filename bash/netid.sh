@@ -18,8 +18,38 @@
 #         If the user includes one and only one string on the command line without any option letter in front of it, only show information for that interface
 #            e.g. network-config-expanded.sh ens34
 #         Your script must allow the user to specify both verbose mode and an interface name if they want
+while [ $# -gt 0 ];
+do
+	case "$1" in
+		-v )
+			verbose="yes"
+			echo "Verbose mode"
+			;;
+		ens34 )
+			interface="ens34"
+			echo "$interface"
+			;;
+		ens33 )
+			interface="ens33"
+			echo "$interface"
+			;;
+		* )
+			echo "Argument does not find"
+			;;
+	esac
+	shift
+done
 # TASK 2: Dynamically identify the list of interface names for the computer running the script, and use a for loop to generate the report for every interface except loopback
-
+interfaceArray=()
+interfaces=$(ifconfig -a | cut -d ' ' -f1| tr ':' '\n' | awk NF)
+for i in $interfaces;
+do
+	if [ $i != "lo" ];
+	then
+		interfaceArray+=("$i")
+	fi
+done
+echo "Running interfaces are: ${interfaceArray[@]}"
 ################
 # Data Gathering
 ################
