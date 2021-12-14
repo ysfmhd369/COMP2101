@@ -1,69 +1,22 @@
-﻿"System Information Script"
-#Going to print system hardware description
-"System Hardware description"
-Get-WmiObject win32_computersystem | Select-Object Manufacturer,model,name,primaryownername | Format-List
-"___________________________"
-#Going to print operating system name and version number"
-"Printing Operating system name and version number"
-if ((Get-WmiObject win32_operatingsystem).caption -ne "")
-{
-"Operating system name= " + (Get-WmiObject win32_operatingsystem).caption
-}
-if ((Get-WmiObject win32_operatingsystem).version -ne "")
-{
-"System version= " + (Get-WmiObject win32_operatingsystem).version
-}
+﻿#command for printing system hardware description
+"Printing system hardware description"
+Get-WmiObject win32_computersystem | Format-List
+"________________________"
+#commands for printing operating system details
+"Printing operating system detais"
+Get-WmiObject win32_operatingsystem|Select-Object caption, version|Format-Table
 "________________________________"
-#Commands for printing processor description with speed, number of cores, and sizes of L1, L2, and L3 caches if they are present (win32_processor)
-"Printing processor description"
-if ((Get-WmiObject win32_processor).caption -ne "")
-{
-"Description= " + (Get-WmiObject win32_processor).caption
-}
-if ((Get-WmiObject win32_processor).name -ne "")
-{
-"Type of processor with speed = " + (Get-WmiObject win32_processor).name
-}
-if ((Get-WmiObject win32_processor).numberofcores -ne "")
-{
-"NUmber of cores = " + (Get-WmiObject win32_processor).numberofcores
-}
-if ((Get-WmiObject win32_processor).L1CacheSize -ne "")
-{
-"L1 Cache size= " + (Get-WmiObject win32_processor).L1CacheSize
-}
-if ((Get-WmiObject win32_processor).L2CacheSize -ne "")
-{
-"L2 Cache size= " + (Get-WmiObject win32_processor).L2CacheSize
-}
-if ((Get-WmiObject win32_processor).L3CacheSize -ne "")
-{
-"L3 Cache size= " + (Get-WmiObject win32_processor).L3CacheSize
-}
-"__________________________________________"
-#commands for prinding summary of RAM
-"Printing summary of RAM"
-if ((Get-WmiObject Win32_physicalmemory).description -ne "")
-{
-"Name = " + (Get-WmiObject Win32_physicalmemory).description
-}
-if ((Get-WmiObject Win32_physicalmemory).manufacturer -ne "")
-{
-"Vendor = " + (Get-WmiObject Win32_physicalmemory).manufacturer
-}
-if ((Get-WmiObject Win32_physicalmemory).capacity/1Gb -ne "")
-{
-"Memmory = " + (Get-WmiObject Win32_physicalmemory).capacity/1Gb + "Gb"
-}
-if ((Get-WmiObject Win32_physicalmemory).banklabel -ne "")
-{
-" Bank label= " + (Get-WmiObject Win32_physicalmemory).banklabel
-}
-if ((Get-WmiObject Win32_physicalmemory).totalphysicalmemory -ne "")
-{
-"Total RAM installed= " + (Get-WmiObject Win32_physicalmemory).totalphysicalmemory/1Gb + "Gb"
-}
-"______________________"
+#Commands for printing processor details
+"Printing processor details"
+Get-CimInstance -ClassName cim_processor | Format-List name, numberofcores,
+@{n= "L1CacheSize"; e= {switch ($_.L1CacheSize) { $null { $output = "L1 cache size does not exist"} default {$output = $_.L1CacheSize } }; $output } },
+@{n= "L2CacheSize"; e= {switch ($_.L2CacheSize) { $null { $output = "L2 cache size does not exist"} default {$output = $_.L2CacheSize } }; $output } },
+@{n= "L3CacheSize"; e= {switch ($_.L3CacheSize) { $null { $output = "L3 cache size does not exist"} default {$output = $_.L3CacheSize } }; $output } }
+"_________________________________"
+#Command for printing RAM summary
+"Printing RAM summary"
+Get-WmiObject win32_physicalmemory | Select-Object description, manufacturer, capacity, banklabel, totalphysicalmemory
+"________________________________"
 # Commands for printing summary of physical drives
 "Printing summary of physical drive"
 $diskdrives = Get-CimInstance cim_diskdrive
@@ -86,46 +39,12 @@ New-Object -TypeName psobject -Property @{Manufacturer=$disk.Manufacturer
 }
 }
 "____________________________"
-#Commands for network configuration summary"
-"Printing summary of network adapter"
- if ((Get-CimInstance win32_networkadapterconfiguration).description -ne "")
-{
-"Description= " + (Get-CimInstance win32_networkadapterconfiguration).description
-}
-if ((Get-CimInstance win32_networkadapterconfiguration).index -ne "")
-{
-"Index= " + (Get-CimInstance win32_networkadapterconfiguration).index
-}
-if ((Get-CimInstance win32_networkadapterconfiguration).ipaddress -ne "" )
-{
-"IP address= " + (Get-CimInstance win32_networkadapterconfiguration).ipaddress
-}
-if ((Get-CimInstance win32_networkadapterconfiguration).IPSubnet -ne "" )
-{
-"Subnet mask = " + (Get-CimInstance win32_networkadapterconfiguration).IPSubnet
-}
-if ((Get-CimInstance win32_networkadapterconfiguration).DNSDomain -ne "")
-{
-"DNS domain = " + (Get-CimInstance win32_networkadapterconfiguration).DNSDomain
-}
-if ((Get-CimInstance win32_networkadapterconfiguration).DNSHostName -ne "")
-{
-"DNS hostname= " + (Get-CimInstance win32_networkadapterconfiguration).DNSHostName
-}
-"___________________________________________________"
-#Commands for prnting video card details
-"Printing summary of video card"
-if ((Get-WmiObject Win32_videocontroller).manufacturer -ne "")
-{
-"manufacturer = " + (Get-WmiObject Win32_videocontroller).manufacturer
-}
-if ((Get-WmiObject Win32_videocontroller).description -ne "")
-{
-"description= "+ (Get-WmiObject Win32_videocontroller).description
-}
-if ((Get-WmiObject Win32_videocontroller).videomodedescription -ne "")
-{
-"Resolution = " + (Get-WmiObject Win32_videocontroller).videomodedescription
-}
+#Section for printing network adapter configuration
+"Printing network adapter summary"
+Get-CimInstance win32_networkadapterconfiguration | where-object ipenabled | Select-Object description, index, ipaddress, ipsubnet, dnsdomain, dnshostname|Format-Table
 "_______________________________"
-"The End Of the Report"
+#command for printing videocard summary
+"Printing video card summary"
+Get-WmiObject win32_videocontroller | Select-Object name, description, videomodedescription | Format-Table
+"___________________________________"
+"_____END_____OF__________REPORT"
